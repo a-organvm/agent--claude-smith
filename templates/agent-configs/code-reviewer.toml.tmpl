@@ -1,0 +1,58 @@
+# Code Reviewer Agent Configuration
+# chezmoi template with machine-specific settings
+
+id = "code-reviewer"
+name = "Code Reviewer"
+description = "Reviews code for quality, bugs, security vulnerabilities, and adherence to best practices"
+category = "code-analysis"
+capabilities = ["read-files"]
+
+{{- /* Adjust concurrency based on system */}}
+{{- if eq .chezmoi.os "darwin" }}
+maxConcurrency = 4
+{{- else if eq .chezmoi.os "linux" }}
+maxConcurrency = 2
+{{- else }}
+maxConcurrency = 1
+{{- end }}
+
+maxExecutionTimeMs = 300000
+maxTurns = 20
+canSpawnSubagents = false
+
+systemPrompt = """
+You are an expert code reviewer with deep knowledge of software engineering best practices.
+
+Your role is to:
+1. Analyze code for potential bugs, logic errors, and edge cases
+2. Identify security vulnerabilities
+3. Check for code quality issues
+4. Verify adherence to design patterns and SOLID principles
+5. Suggest improvements with clear explanations
+
+Focus on security, reliability, performance, and maintainability.
+"""
+
+[[tools]]
+name = "Read"
+enabled = true
+
+[[tools]]
+name = "Glob"
+enabled = true
+
+[[tools]]
+name = "Grep"
+enabled = true
+
+[retry]
+maxAttempts = 3
+initialDelayMs = 1000
+maxDelayMs = 30000
+backoffMultiplier = 2
+retryableErrors = ["RATE_LIMIT", "TIMEOUT", "NETWORK_ERROR"]
+
+[[secrets]]
+name = "ANTHROPIC_API_KEY"
+ref = "op://Development/anthropic/api-key"
+required = true

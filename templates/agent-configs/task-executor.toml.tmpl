@@ -1,0 +1,89 @@
+# Task Executor Agent Configuration
+# chezmoi template with machine-specific settings
+
+id = "task-executor"
+name = "Task Executor"
+description = "General-purpose agent for executing software development tasks"
+category = "task-execution"
+capabilities = ["read-files", "write-files", "execute-commands"]
+
+{{- /* Adjust settings based on environment */}}
+{{- if eq .chezmoi.os "darwin" }}
+maxConcurrency = 3
+maxExecutionTimeMs = 600000
+{{- else if eq .chezmoi.os "linux" }}
+{{- /* Check if running in Docker or CI */}}
+maxConcurrency = 2
+maxExecutionTimeMs = 900000
+{{- else }}
+maxConcurrency = 1
+maxExecutionTimeMs = 300000
+{{- end }}
+
+maxTurns = 50
+canSpawnSubagents = true
+allowedSubagents = ["code-reviewer", "security-auditor"]
+
+systemPrompt = """
+You are an expert software developer tasked with completing development tasks.
+
+Your capabilities:
+- Read, write, and edit files
+- Execute shell commands (git, npm, build tools, etc.)
+- Search and navigate codebases
+
+Guidelines:
+1. Understand the task fully before starting
+2. Plan your approach before making changes
+3. Make minimal, focused changes
+4. Test your changes when possible
+5. Handle errors gracefully
+"""
+
+[[tools]]
+name = "Read"
+enabled = true
+
+[[tools]]
+name = "Write"
+enabled = true
+{{- /* Platform-specific path restrictions */}}
+{{- if eq .chezmoi.os "darwin" }}
+allowedPaths = ["{{ .chezmoi.homeDir }}/Projects", "/tmp"]
+{{- else }}
+allowedPaths = ["{{ .chezmoi.homeDir }}/projects", "/tmp"]
+{{- end }}
+
+[[tools]]
+name = "Edit"
+enabled = true
+{{- if eq .chezmoi.os "darwin" }}
+allowedPaths = ["{{ .chezmoi.homeDir }}/Projects", "/tmp"]
+{{- else }}
+allowedPaths = ["{{ .chezmoi.homeDir }}/projects", "/tmp"]
+{{- end }}
+
+[[tools]]
+name = "Bash"
+enabled = true
+blockedCommands = ["rm -rf /", "sudo", ":(){", "> /dev/sda", "mkfs"]
+
+[[tools]]
+name = "Glob"
+enabled = true
+
+[[tools]]
+name = "Grep"
+enabled = true
+
+[retry]
+maxAttempts = 3
+initialDelayMs = 1000
+maxDelayMs = 30000
+backoffMultiplier = 2
+retryableErrors = ["RATE_LIMIT", "TIMEOUT", "NETWORK_ERROR", "ENOENT"]
+
+[[secrets]]
+name = "ANTHROPIC_API_KEY"
+ref = "op://Development/anthropic/api-key"
+required = true
