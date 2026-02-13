@@ -1,0 +1,42 @@
+# seed.yaml — Automation Contract for organvm-iv-taxis/agent--claude-smith
+# Schema: seed/v1.0
+# Generated: 2026-02-12 (AUTONOMY Sprint)
+# Category: flagship_with_deps
+
+schema_version: "1.0"
+organ: IV
+organ_name: Orchestration
+repo: agent--claude-smith
+org: organvm-iv-taxis
+
+metadata:
+  implementation_status: PRODUCTION
+  tier: standard
+  promotion_status: LOCAL
+  last_validated: "2026-02-11"
+  generated: "2026-02-12"
+  sprint: "AUTONOMY"
+
+agents:
+  - name: ci
+    trigger: on_push
+    workflow: .github/workflows/ci-typescript.yml
+    description: "Continuous integration pipeline"
+
+produces:
+  - type: dependency
+    description: Consumed by organvm-iv-taxis/a-i--skills
+    consumers: [organvm-iv-taxis/a-i--skills]
+
+consumes:
+  - type: dependency
+    source: organvm-iv-taxis/agentic-titan
+    description: Depends on organvm-iv-taxis/agentic-titan
+
+subscriptions:
+  - event: repo.created
+    source: any
+    action: "Update registry, assign seed.yaml template"
+  - event: ci.passed
+    source: any
+    action: Check if repo qualifies for promotion
