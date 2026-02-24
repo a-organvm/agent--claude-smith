@@ -128,3 +128,22 @@ tests/
 ```
 
 Vitest globals are enabled (`describe`, `it`, `expect`, `vi` available without imports).
+
+<!-- ORGANVM:AUTO:START -->
+## System Context (auto-generated — do not edit)
+
+**Organ:** ORGAN-IV (Orchestration) | **Tier:** standard | **Status:** LOCAL
+**Org:** `unknown` | **Repo:** `agent--claude-smith`
+
+### Edges
+- **Produces** → `unknown`: unknown
+- **Consumes** ← `META-ORGANVM`: unknown
+
+### Siblings in Orchestration
+`orchestration-start-here`, `petasum-super-petasum`, `universal-node-network`, `.github`, `agentic-titan`, `a-i--skills`
+
+### Governance
+- *Standard ORGANVM governance applies*
+
+*Last synced: 2026-02-24T01:01:15Z*
+<!-- ORGANVM:AUTO:END -->
