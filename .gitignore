@@ -13,6 +13,7 @@ dist/
 
 # OS files
 .DS_Store
+.dbxignore
 Thumbs.db
 
 # IDE
