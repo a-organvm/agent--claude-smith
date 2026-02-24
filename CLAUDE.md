@@ -133,11 +133,11 @@ Vitest globals are enabled (`describe`, `it`, `expect`, `vi` available without i
 ## System Context (auto-generated — do not edit)
 
 **Organ:** ORGAN-IV (Orchestration) | **Tier:** standard | **Status:** CANDIDATE
-**Org:** `unknown` | **Repo:** `agent--claude-smith`
+**Org:** `organvm-iv-taxis` | **Repo:** `agent--claude-smith`
 
 ### Edges
-- **Produces** → `unknown`: unknown
-- **Consumes** ← `META-ORGANVM`: unknown
+- **Produces** → `organvm-iv-taxis/a-i--skills`: governance-policy
+- **Consumes** ← `META-ORGANVM`: registry
 
 ### Siblings in Orchestration
 `orchestration-start-here`, `petasum-super-petasum`, `universal-node-network`, `.github`, `agentic-titan`, `a-i--skills`

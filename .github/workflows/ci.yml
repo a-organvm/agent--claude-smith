@@ -65,7 +65,6 @@ jobs:
           fi
 
       - name: Type check with tsc
-        continue-on-error: true
         if: steps.detect.outputs.pm != 'none' && hashFiles('tsconfig.json') != ''
         run: |
           if [ -f "tsconfig.json" ]; then
