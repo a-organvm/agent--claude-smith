@@ -11,6 +11,7 @@ import { AgentRegistry, getAgentRegistry } from './agent-registry.js';
 import { SessionManager, getSessionManager, type OrchestratorShutdownResult } from './session-manager.js';
 import { SecretResolver, getSecretResolver } from '../secrets/secret-resolver.js';
 import { SelfCorrectionHooks, getSelfCorrectionHooks, AuditLogEntry } from '../hooks/self-correction.js';
+import { ScopeValidator, getScopeValidator } from './scope-validator.js';
 import type { ChezmoiManager } from '../config/chezmoi-manager.js';
 
 // ============================================================================
@@ -23,6 +24,7 @@ interface OrchestratorOptions {
   sessionManager?: SessionManager;
   secretResolver?: SecretResolver;
   hooks?: SelfCorrectionHooks;
+  scopeValidator?: ScopeValidator;
   chezmoiManager?: ChezmoiManager;
   onAuditEntry?: (entry: AuditLogEntry) => void;
 }
@@ -36,6 +38,7 @@ export class Orchestrator {
   private readonly sessionManager: SessionManager;
   private readonly secretResolver: SecretResolver;
   private readonly hooks: SelfCorrectionHooks;
+  private readonly scopeValidator: ScopeValidator;
   private readonly chezmoiManager: ChezmoiManager | null;
 
   private activeAgents: Map<string, AbortController> = new Map();
@@ -60,6 +63,7 @@ export class Orchestrator {
       onAuditEntry: options.onAuditEntry,
     });
 
+    this.scopeValidator = options.scopeValidator ?? getScopeValidator();
     this.chezmoiManager = options.chezmoiManager ?? null;
   }
 
@@ -107,6 +111,25 @@ export class Orchestrator {
         request,
         `Failed to resolve secrets: ${error instanceof Error ? error.message : String(error)}`
       );
+    }
+
+    // Validate repo scope — one-repo-per-session (Commandment #18)
+    const requestedDir = request.workingDirectory ?? this.config.defaultWorkingDirectory;
+    const activeSessions = await this.sessionManager.listActiveSessions();
+    const scopeCheck = this.scopeValidator.validateRepoScope(requestedDir, activeSessions);
+    if (!scopeCheck.allowed) {
+      return {
+        sessionId: request.sessionId ?? 'no-session',
+        agentId: request.agentId,
+        status: 'error',
+        error: scopeCheck.reason ?? 'Scope conflict',
+        turnsTaken: 0,
+        executionTimeMs: 0,
+        metadata: {
+          errorCode: 'SCOPE_CONFLICT',
+          conflictingSessionId: scopeCheck.conflictingSessionId,
+        },
+      };
     }
 
     // Create or resume session

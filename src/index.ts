@@ -13,6 +13,7 @@
 import { Orchestrator, getOrchestrator } from './core/orchestrator.js';
 import { AgentRegistry, getAgentRegistry } from './core/agent-registry.js';
 import { SessionManager, getSessionManager } from './core/session-manager.js';
+import { ScopeValidator, getScopeValidator } from './core/scope-validator.js';
 import { ChezmoiManager, createChezmoiManager } from './config/chezmoi-manager.js';
 import { OnePasswordClient, getOnePasswordClient } from './secrets/one-password.js';
 import { SecretResolver, getSecretResolver } from './secrets/secret-resolver.js';
@@ -36,6 +37,8 @@ export {
   getAgentRegistry,
   SessionManager,
   getSessionManager,
+  ScopeValidator,
+  getScopeValidator,
 
   // Config
   ChezmoiManager,
